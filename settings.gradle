@@ -1,0 +1,3 @@
+include ':app', ':mjpegviewer'
+
+rootProject.name = "Mjpeg-Kotlin"
