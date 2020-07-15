@@ -1,7 +1,9 @@
 package com.example.mjpeg_kotlin
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import com.faizkhan.mjpegviewer.MjpegView
 
 class MainActivity : AppCompatActivity() {
@@ -31,5 +33,17 @@ class MainActivity : AppCompatActivity() {
         view!!.stopStream()
         //view2.stopStream();
 
+    }
+
+    fun startService(v: View?) {
+        //val input: String = editTextInput.getText().toString()
+        val serviceIntent = Intent(this, ForegroundService::class.java)
+        //serviceIntent.putExtra("inputExtra", input)
+        startService(serviceIntent)
+    }
+
+    fun stopService(v: View){
+        val stopIntent = Intent(this, ForegroundService::class.java)
+        stopService(stopIntent)
     }
 }

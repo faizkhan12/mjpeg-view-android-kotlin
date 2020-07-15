@@ -1,14 +1,15 @@
 package com.faizkhan.mjpegviewer
 
-import android.app.Activity
 import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Paint
+import android.graphics.Rect
 import android.os.AsyncTask
 import android.os.Build
 import android.os.Environment
 import android.util.AttributeSet
 import android.util.Log
-import android.view.View
 import androidx.annotation.RequiresApi
 import java.io.BufferedInputStream
 import java.io.File
@@ -21,47 +22,53 @@ import java.time.Instant
 import java.util.concurrent.TimeUnit
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-
-
-class MjpegView : View {
+class MjpegForeground{
+    val MODE_ORIGINAL = 0
+    val MODE_FIT_WIDTH = 1
+    val MODE_FIT_HEIGHT = 2
+    val MODE_BEST_FIT = 3
+    val MODE_STRETCH = 4
+    private val WAIT_AFTER_READ_IMAGE_ERROR_MSEC = 5000
+    private val CHUNK_SIZE = 4096
     val tag = javaClass.simpleName
-    private var context1: Context
+    val TAG = MjpegView::class.java.simpleName
+    private val INTENT_REQUEST_CODE = 100
+    var context1: Context? = null
     var url1: String? = null
     private var lastBitmap: Bitmap? = null
-    var foreground: MjpegDownloader? = null
+    var downloader: Downloader?=null
     private val lockBitmap = Any()
-    private var paint: Paint? = null
-    private var dst: Rect? = null
-    var mode1 = MODE_ORIGINAL
-    private var drawX = 0
-    private var drawY = 0
-    private var vWidth = -1
-    private var vHeight = -1
+    private val paint: Paint? = null
+    private val dst: Rect? = null
+    private var mode1 = MODE_ORIGINAL
+    private val drawX = 0
+    private  var drawY:Int = 0
+    private  var vWidth:Int = -1
+    private  var vHeight:Int = -1
     private var lastImgWidth = 0
-    private var lastImgHeight = 0
-    var isAdjustWidth = false
-    var isAdjustHeight = false
-    var msecWaitAfterReadImageError =
-        WAIT_AFTER_READ_IMAGE_ERROR_MSEC
-    var isRecycleBitmap1 = false
-    private var isUserForceConfigRecycle = false
-
-    constructor(context: Context) : super(context) {
+    private  var lastImgHeight:Int = 0
+    private val adjustWidth = false
+    private  var adjustHeight:kotlin.Boolean = false
+    private val msecWaitAfterReadImageError = WAIT_AFTER_READ_IMAGE_ERROR_MSEC
+     val isRecycleBitmap1 = false
+    private val isUserForceConfigRecycle = false
+    var image = ByteArray(0)
+    var read = ByteArray(CHUNK_SIZE)
+    lateinit var tmpCheckBoundry: ByteArray
+    var readByte = 0
+    var boundaryIndex:Int = 0
+    var checkHeaderStr: String? = null
+    var boundary:kotlin.String? = null
+    var photo: File? = null
+    constructor(context: Context) : super() {
         this.context1 = context
-        init()
     }
 
     constructor(
         context: Context,
         attrs: AttributeSet?
-    ) : super(context, attrs) {
+    ) : super() {
         this.context1= context
-        init()
-    }
-
-    private fun init() {
-        paint = Paint(Paint.ANTI_ALIAS_FLAG)
-        dst = Rect(0, 0, 0, 0)
     }
 
     fun setUrl(url: String?) {
@@ -70,16 +77,16 @@ class MjpegView : View {
 
     @Throws(IOException::class)
     fun startStream() {
-        if (foreground != null && foreground!!.isRunning) {
+        if (downloader != null && downloader!!.isRunning) {
             Log.w(tag, "Already started, stop by calling stopStream() first.")
             return
         }
-        foreground = MjpegDownloader()
-        foreground!!.start()
+        downloader = Downloader()
+        downloader!!.start()
     }
 
     fun stopStream() {
-        foreground!!.cancel()
+        downloader!!.cancel()
     }
 
     fun getMode(): Int {
@@ -89,161 +96,10 @@ class MjpegView : View {
     fun setMode(mode: Int) {
         this.mode1 = mode
         lastImgWidth = -1 // force re-calculate view size
-        requestLayout()
     }
 
-    fun setBitmap(bm: Bitmap?) {
-        Log.v(tag, "New frame")
-        synchronized(lockBitmap) {
-            if (lastBitmap != null && isUserForceConfigRecycle && isRecycleBitmap1) {
-                Log.v(tag, "Manually recycle bitmap")
-                lastBitmap!!.recycle()
-            }
-            lastBitmap = bm
-        }
-        if (context is Activity) {
-            (context as Activity).runOnUiThread {
-                invalidate()
-                requestLayout()
-            }
-        } else {
-            Log.e(
-                tag,
-                "Can not request Canvas's redraw. Context is not an instance of Activity"
-            )
-        }
-    }
+    inner class Downloader : Thread() {
 
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        var shouldRecalculateSize: Boolean
-        synchronized(lockBitmap) {
-            shouldRecalculateSize =
-                lastBitmap != null && (lastImgWidth != lastBitmap!!.width || lastImgHeight != lastBitmap!!.height)
-            if (shouldRecalculateSize) {
-                lastImgWidth = lastBitmap!!.width
-                lastImgHeight = lastBitmap!!.height
-            }
-        }
-        if (shouldRecalculateSize) {
-            Log.d(tag, "Recalculate view/image size")
-            vWidth = MeasureSpec.getSize(widthMeasureSpec)
-            vHeight = MeasureSpec.getSize(heightMeasureSpec)
-            if (mode1 == MODE_ORIGINAL) {
-                drawX = (vWidth - lastImgWidth) / 2
-                drawY = (vHeight - lastImgHeight) / 2
-                if (isAdjustWidth) {
-                    vWidth = lastImgWidth
-                    drawX = 0
-                }
-                if (isAdjustHeight) {
-                    vHeight = lastImgHeight
-                    drawY = 0
-                }
-            } else if (mode1 == MODE_FIT_WIDTH) {
-                val newHeight =
-                    (lastImgHeight.toFloat() / lastImgWidth.toFloat() * vWidth).toInt()
-                drawX = 0
-                if (isAdjustHeight) {
-                    vHeight = newHeight
-                    drawY = 0
-                } else {
-                    drawY = (vHeight - newHeight) / 2
-                }
-
-                //no need to check adjustWidth because in this mode image's width is always equals view's width.
-                dst!![drawX, drawY, vWidth] = drawY + newHeight
-            } else if (mode1 == MODE_FIT_HEIGHT) {
-                val newWidth =
-                    (lastImgWidth.toFloat() / lastImgHeight.toFloat() * vHeight).toInt()
-                drawY = 0
-                if (isAdjustWidth) {
-                    vWidth = newWidth
-                    drawX = 0
-                } else {
-                    drawX = (vWidth - newWidth) / 2
-                }
-
-                //no need to check adjustHeight because in this mode image's height is always equals view's height.
-                dst!![drawX, drawY, drawX + newWidth] = vHeight
-            } else if (mode1 == MODE_BEST_FIT) {
-                if (lastImgWidth.toFloat() / vWidth.toFloat() > lastImgHeight.toFloat() / vHeight.toFloat()) {
-                    //duplicated code
-                    //fit width
-                    val newHeight =
-                        (lastImgHeight.toFloat() / lastImgWidth.toFloat() * vWidth) as Int
-                    drawX = 0
-                    if (isAdjustHeight) {
-                        vHeight = newHeight
-                        drawY = 0
-                    } else {
-                        drawY = (vHeight - newHeight) / 2
-                    }
-
-                    //no need to check adjustWidth because in this mode image's width is always equals view's width.
-                    dst!![drawX, drawY, vWidth] = drawY + newHeight
-                } else {
-                    //duplicated code
-                    //fit height
-                    val newWidth =
-                        (lastImgWidth.toFloat() / lastImgHeight.toFloat() * vHeight) as Int
-                    drawY = 0
-                    if (isAdjustWidth) {
-                        vWidth = newWidth
-                        drawX = 0
-                    } else {
-                        drawX = (vWidth - newWidth) / 2
-                    }
-
-                    //no need to check adjustHeight because in this mode image's height is always equals view's height.
-                    dst!![drawX, drawY, drawX + newWidth] = vHeight
-                }
-            } else if (mode1 == MODE_STRETCH) {
-                dst!![0, 0, vWidth] = vHeight
-                //no need to check neither adjustHeight nor adjustHeight because in this mode image's size is always equals view's size.
-            }
-        } else {
-            if (vWidth == -1 || vHeight == -1) {
-                vWidth = MeasureSpec.getSize(widthMeasureSpec)
-                vHeight = MeasureSpec.getSize(heightMeasureSpec)
-            }
-        }
-        setMeasuredDimension(vWidth, vHeight)
-    }
-
-    override fun onDraw(c: Canvas) {
-        synchronized(lockBitmap) {
-            if (c != null && lastBitmap != null && !lastBitmap!!.isRecycled) {
-                if (isInEditMode) {
-                    // TODO: preview while edit xml
-                } else if (mode1 != MODE_ORIGINAL) {
-                    c.drawBitmap(lastBitmap!!, null, dst!!, paint)
-                } else {
-                    c.drawBitmap(lastBitmap!!, drawX.toFloat(), drawY.toFloat(), paint)
-                }
-            } else {
-                Log.d(tag, "Skip drawing, canvas is null or bitmap is not ready yet")
-            }
-        }
-    }
-
-    fun isRecycleBitmap(): Boolean {
-        return isRecycleBitmap1
-    }
-
-    fun setRecycleBitmap(recycleBitmap: Boolean) {
-        isUserForceConfigRecycle = true
-        isRecycleBitmap1 = recycleBitmap
-    }
-
-    inner class MjpegDownloader : Thread() {
-//        private var prefManager: PrefManager? = null
-        var image = ByteArray(0)
-        var read = ByteArray(CHUNK_SIZE)
-        lateinit var tmpCheckBoundry: ByteArray
-        var readByte = 0
-        var boundaryIndex = 0
-        var checkHeaderStr: String? = null
-        var boundary: String? = null
         var isRunning = true
             private set
 
@@ -444,10 +300,23 @@ class MjpegView : View {
             return tmp
         }
 
+        fun setBitmap(bm: Bitmap?) {
+            Log.v(tag, "New frame")
+            synchronized(lockBitmap) {
+                if (lastBitmap != null && isUserForceConfigRecycle && isRecycleBitmap1) {
+                    Log.v(tag, "Manually recycle bitmap")
+                    lastBitmap!!.recycle()
+                }
+                lastBitmap = bm
+            }
+
+        }
+
         private fun newFrame(bitmap: Bitmap) {
             setBitmap(bitmap)
         }
     }
+
 
     companion object {
         const val MODE_ORIGINAL = 0
@@ -455,8 +324,7 @@ class MjpegView : View {
         const val MODE_FIT_HEIGHT = 2
         const val MODE_BEST_FIT = 3
         const val MODE_STRETCH = 4
-        const val WAIT_AFTER_READ_IMAGE_ERROR_MSEC = 5000
+        private const val WAIT_AFTER_READ_IMAGE_ERROR_MSEC = 5000
         private const val CHUNK_SIZE = 4096
-
     }
 }

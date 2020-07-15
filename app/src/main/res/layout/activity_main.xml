@@ -10,6 +10,21 @@
     <com.faizkhan.mjpegviewer.MjpegView
         android:id="@+id/mjpegid"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="473dp"
+        android:onClick="startService"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="startService"
+        android:text="Start Service"
+        />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="stopService"
+        android:text="Stop Service"
+        android:layout_marginLeft="120dp"
+        />
+
 
 </RelativeLayout>
