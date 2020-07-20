@@ -41,6 +41,8 @@ subprojects {
     tasks.withType(Javadoc).all { enabled = false }
 }
 task javadoc(type: Javadoc) {
-    excludes = ['**/*.kt'] // < ---- Exclude all kotlin files from javadoc file.
-    // ...
+    excludes = ['**/*.kt'] 
+}
+tasks.withType(Javadoc) {
+    options.addBooleanOption('Xdoclint:none', true)
 }
