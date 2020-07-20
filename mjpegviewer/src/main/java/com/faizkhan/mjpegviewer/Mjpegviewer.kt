@@ -348,7 +348,6 @@ class MjpegView : View {
                     while (isRunning) {
                         try {
                             readByte = bis.read(read)
-                            //System.out.println("Reading "+readByte);
                             //no more data
                             if (readByte == -1) {
                                 break
@@ -368,7 +367,6 @@ class MjpegView : View {
                                 } else {
                                     delByte(image, -boundaryIndex)
                                 }
-                                //System.out.println("Image"+image.getClass().getSimpleName());
                                 val outputImg =
                                     BitmapFactory.decodeByteArray(image, 0, image.size)
                                 //final Bitmap outputImg1 = BitmapFactory.decodeByteArray(image, 0, image.length);

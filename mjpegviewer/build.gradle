@@ -14,14 +14,14 @@ ext {
 
     libraryDescription = 'Android view to display mjpeg streaming'
 
-    siteUrl = 'https://github.com/perthcpe23/android-mjpeg-view'
-    gitUrl = 'https://github.com/perthcpe23/android-mjpeg-view.git'
+    siteUrl = 'https://github.com/faizkhan12/mjpeg-view-android-kotlin'
+    gitUrl = 'https://github.com/faizkhan12/mjpeg-view-android-kotlin.git'
 
     libraryVersion = '1.0.8'
 
-    developerId = 'perthcpe23   '
-    developerName = 'Punyapat Sessomboon'
-    developerEmail = 'perth.s28@gmail.com'
+    developerId = 'faizkhan12   '
+    developerName = 'Faiz Khan'
+    developerEmail = 'faizk6797@gmail.com@gmail.com'
 
     licenseName = 'MIT'
     licenseUrl = 'https://opensource.org/licenses/MIT'
