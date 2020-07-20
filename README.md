@@ -1,4 +1,6 @@
-# mjpeg-view-android-kotlin
+[![](https://jitpack.io/v/faizkhan12/mjpeg-view-android-kotlin.svg)](https://jitpack.io/#faizkhan12/mjpeg-view-android-kotlin)[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+# Mjpeg-View-Android-Kotlin
 Android Mjpeg Video streaming in Kotlin as well as saving images in frames.
 
 A wrapper library around the [android-mjpeg-view](https://github.com/perthcpe23/android-mjpeg-view) which is written in Java.
@@ -11,6 +13,5 @@ Some of the features of this library is
 - Can save the image in background(Foreground service integration(updated)).
 
 
-[![](https://jitpack.io/v/faizkhan12/mjpeg-view-android-kotlin.svg)](https://jitpack.io/#faizkhan12/mjpeg-view-android-kotlin)
 
 
