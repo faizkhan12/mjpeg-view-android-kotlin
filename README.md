@@ -11,3 +11,6 @@ Some of the features of this library is
 - Can save the image in background(Foreground service integration(updated)).
 
 
+[![](https://jitpack.io/v/faizkhan12/mjpeg-view-android-kotlin.svg)](https://jitpack.io/#faizkhan12/mjpeg-view-android-kotlin)
+
+
