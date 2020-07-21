@@ -1,32 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
-
-//ext {
-//    bintrayRepo = 'maven'
-//    bintrayName = 'mjpegviewer'
-//
-//    publishedGroupId = 'com.github.faikhan12'
-//    libraryName = 'AndroidMjpegView'
-//    artifact = 'mjpegviewer'
-//
-//    libraryDescription = 'Android view to display mjpeg streaming'
-//
-//    siteUrl = 'https://github.com/faizkhan12/mjpeg-view-android-kotlin'
-//    gitUrl = 'https://github.com/faizkhan12/mjpeg-view-android-kotlin.git'
-//
-//    libraryVersion = '1.0.8'
-//
-//    developerId = 'faizkhan12   '
-//    developerName = 'Faiz Khan'
-//    developerEmail = 'faizk6797@gmail.com@gmail.com'
-//
-//    licenseName = 'MIT'
-//    licenseUrl = 'https://opensource.org/licenses/MIT'
-//    allLicenses = ["MIT"]
-//}
 
 android {
     compileSdkVersion 29
@@ -54,8 +28,6 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
-//apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
-//apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
 repositories {
     mavenCentral()
 }
