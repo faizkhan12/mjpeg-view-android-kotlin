@@ -47,12 +47,22 @@ private var view: MjpegView? = null
 view = findViewById(R.id.mjpegid)
 view!!.isAdjustHeight = true
 view!!.mode1 = MjpegView.MODE_FIT_WIDTH
-view!!.setUrl("<Your HTTP URL")
+view!!.setUrl("<<Your HTTP URL>>")
 view!!.isRecycleBitmap1 = true
 view!!.startStream()
 
 //when user leaves application
 viewer!!.stopStream();
+````
+3. Start Foreground Service
+````
+ val serviceIntent = Intent(this, ForegroundService::class.java)
+ startService(serviceIntent)
+````
+4. Stop Foreground Service
+````
+val stopIntent = Intent(this, ForegroundService::class.java)
+stopService(stopIntent)
 ````
 
 ## License
