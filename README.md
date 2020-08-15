@@ -64,7 +64,8 @@ viewer!!.stopStream();
 val stopIntent = Intent(this, ForegroundService::class.java)
 stopService(stopIntent)
 ````
-
+## PS
+Please give permission to storage for saving images.
 ## License
 
 Copyright 2020 Faiz Khan
