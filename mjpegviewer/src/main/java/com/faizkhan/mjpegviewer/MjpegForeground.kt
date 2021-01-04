@@ -22,6 +22,11 @@ import java.time.Instant
 import java.util.concurrent.TimeUnit
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+
+/*
+* Created by Faiz Khan
+ */
+
 class MjpegForeground{
     val MODE_ORIGINAL = 0
     val MODE_FIT_WIDTH = 1

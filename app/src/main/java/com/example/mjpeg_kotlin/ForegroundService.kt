@@ -14,6 +14,10 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.faizkhan.mjpegviewer.MjpegForeground
 
+/*
+* Created by Faiz Khan
+ */
+
 class ForegroundService : Service() {
     private lateinit var download: MjpegForeground
     var context:Context = this
@@ -52,7 +56,7 @@ class ForegroundService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
         download= MjpegForeground(context)
-        download.setUrl("http://192.168.0.4/mjpeg/1")
+        download.setUrl(<Your Url>)
         download.startStream()
 
         return START_STICKY

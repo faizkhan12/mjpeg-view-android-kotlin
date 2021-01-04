@@ -6,6 +6,10 @@ import android.os.Bundle
 import android.view.View
 import com.faizkhan.mjpegviewer.MjpegView
 
+/*
+* Created by Faiz Khan
+ */
+
 class MainActivity : AppCompatActivity() {
     private var view: MjpegView? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,7 +19,7 @@ class MainActivity : AppCompatActivity() {
         view = findViewById(R.id.mjpegid)
         view!!.isAdjustHeight = true
         view!!.mode1 = MjpegView.MODE_FIT_WIDTH
-        view!!.setUrl("http://192.168.0.4/mjpeg/1")
+        view!!.setUrl(<Your Url>)
         view!!.isRecycleBitmap1 = true
 
 

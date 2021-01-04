@@ -22,6 +22,9 @@ import java.util.concurrent.TimeUnit
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
+/*
+* Created by Faiz Khan
+ */
 
 class MjpegView : View {
     val tag = javaClass.simpleName
